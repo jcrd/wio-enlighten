@@ -4,8 +4,12 @@
 
 #include "env.h"
 
+#define LCD_BACKLIGHT (72Ul)
+
 TFT_eSPI tft;
 WiFiServer server(80);
+
+int backlight_on = 1;
 
 void setup()
 {
@@ -13,6 +17,7 @@ void setup()
   tft.fillScreen(TFT_BLACK);
 
   pinMode(WIO_LIGHT, INPUT);
+  pinMode(WIO_KEY_C, INPUT_PULLUP);
 
   Serial.begin(115200);
   while (!Serial)
@@ -53,6 +58,21 @@ void setup()
 
 void loop()
 {
+  if (digitalRead(WIO_KEY_C) == LOW)
+  {
+    if (backlight_on)
+    {
+      digitalWrite(LCD_BACKLIGHT, LOW);
+      backlight_on = 0;
+    }
+    else
+    {
+      digitalWrite(LCD_BACKLIGHT, HIGH);
+      backlight_on = 1;
+    }
+    delay(500);
+  }
+
   WiFiClient client = server.available();
 
   if (client)
